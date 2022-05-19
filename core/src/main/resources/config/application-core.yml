@@ -1,0 +1,98 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active: local
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
+  session:
+    store-type: redis
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    timeout: 2400
+
+demo:
+  #Database
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    hikari:
+      idle-timeout: 10000
+
+
+---
+
+
+spring:
+  profiles: local
+  output:
+    ansi:
+      enabled: ALWAYS
+
+demo:
+  #Homepage URL
+  url:
+    admin: http://localhost:9191
+    pc-web: http://localhost:9292
+    mobile-web: http://localhost:9393
+  #Database
+  #spring 2.0 + 이상 부터 serverTimezone=UTC 추가
+  datasource:
+    url: jdbc:mysql://192.168.1.84:3306/ksfr_db?useSSL=false&allowMultiQueries=true&serverTimezone=UTC
+    username: ksfr-user
+    password: ksfr2019!
+  #File Upload Directory Path
+  file-upload:
+    temp-dir: C:/attach/temp
+    save-dir: C:/attach/save
+
+
+---
+
+
+spring:
+  profiles: dev
+
+demo:
+  #Homepage URL
+  url:
+    admin: http://localhost:9191
+    pc-web: http://localhost:9292
+    mobile-web: http://localhost:9393
+  #Database
+  #spring 2.0 + 이상 부터 serverTimezone=UTC 추가
+  datasource:
+    url: jdbc:mysql://192.168.1.84:3306/ksfr_db?useSSL=false&allowMultiQueries=true&serverTimezone=UTC
+    username: ksfr-user
+    password: ksfr2019!
+  #File Upload Directory Path
+  file-upload:
+    temp-dir: C:/attach/temp
+    save-dir: C:/attach/save
+
+
+---
+
+
+spring:
+  profiles: prod
+
+demo:
+  #Homepage URL
+  url:
+    admin: http://localhost:9191
+    pc-web: http://localhost:9292
+    mobile-web: http://localhost:9393
+  #Database
+  #spring 2.0 + 이상 부터 serverTimezone=UTC 추가
+  datasource:
+    url: jdbc:mysql://192.168.1.84:3306/ksfr_db?useSSL=false&allowMultiQueries=true&serverTimezone=UTC
+    username: ksfr-user
+    password: ksfr2019!
+  #File Upload Directory Path
+  file-upload:
+    temp-dir: C:/attach/temp
+    save-dir: C:/attach/save

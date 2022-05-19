@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Common">
+	<sql id="groupBy">
+		<if test="groupByKey != null">
+			GROUP BY ${groupByKey}
+		</if>
+	</sql>
+
+	<sql id="sort">
+		<if test="orderKey != null">
+		 ORDER BY ${orderKey} ${orderValue}
+		</if>
+		<if test="subOrderKey != null">
+			, ${subOrderKey} ${subOrderValue}
+		</if>
+	</sql>
+
+	<sql id="pagingFooter-mysql">
+		<if test="skipPaging == false">
+			LIMIT #{fromNo}, #{dataPerPage}
+		</if>
+	</sql>
+	
+</mapper>

@@ -1,0 +1,13 @@
+${AnsiColor.BLUE}
+
+  __  __           _   _     _     __  __               _           _
+ |  \/  |         | | | |   (_)   |  \/  |             | |         | |
+ | \  / |  _   _  | | | |_   _    | \  / |   ___     __| |  _   _  | |   ___
+ | |\/| | | | | | | | | __| | |   | |\/| |  / _ \   / _` | | | | | | |  / _ \
+ | |  | | | |_| | | | | |_  | |   | |  | | | (_) | | (_| | | |_| | | | |  __/
+ |_|  |_|  \__,_| |_|  \__| |_|   |_|  |_|  \___/   \__,_|  \__,_| |_|  \___|
+
+${AnsiColor.WHITE}
+ Korean Swimming Federation (${spring.profiles.active}) :: Running Spring Boot ${spring-boot.version} :: Produced by adnstyle
+
+

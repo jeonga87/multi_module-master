@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.demo.admin.repository.AdminRepository">
+  <resultMap id="simpleAdminResult" type="kr.co.demo.admin.domain.Admin" >
+    <id	 property="idx"					column="ADMIN_IDX" />
+    <result property="id"				column="ADMIN_ID" />
+    <result property="pwd"				column="ADMIN_PWD" />
+    <result property="name"				column="ADMIN_NAME" />
+    <result property="email"			column="ADMIN_EMAIL" />
+    <result property="phone"			column="ADMIN_PHONE" />
+    <result property="useYn"			column="ADMIN_USE_YN" />
+    <result property="delYn"			column="ADMIN_DEL_YN" />
+    <result property="createdBy"		column="ADMIN_CREATED_BY" />
+    <result property="createdDt"		column="ADMIN_CREATED_DATE" />
+    <result property="modifiedBy"		column="ADMIN_MODIFIED_BY" />
+    <result property="modifiedDt"		column="ADMIN_MODIFIED_DATE" />
+  </resultMap>
+
+    <sql id="adminCondition">
+    <where>
+      ADMIN_DEL_YN = 'N'
+      <if test="searchInfo != null">
+        <foreach collection="searchInfo.entrySet()" index="key" item="entry">
+          <if test="entry != null and entry != ''">
+            <choose>
+              <when test="key == 'search'">
+                <choose>
+                  <when test="entry == 'all' and searchValue != ''">
+										AND
+										(
+												ADMIN_ID LIKE CONCAT('%',#{searchValue},'%')
+											OR
+												ADMIN_NAME LIKE CONCAT('%',#{searchValue},'%')
+										)
+									</when>
+                  <when test="entry == 'name' and searchValue != ''">
+                    AND ADMIN_NAME LIKE CONCAT('%',#{searchValue},'%')
+                  </when>
+                  <when test="entry == 'id' and searchValue != ''">
+                    AND ADMIN_ID LIKE CONCAT('%',#{searchValue},'%')
+                  </when>
+                </choose>
+              </when>
+            </choose>
+          </if>
+        </foreach>
+      </if>
+    </where>
+    </sql>
+
+  <insert id="insertAdmin">
+    <selectKey keyProperty="idx" order="BEFORE" resultType="long">
+      SELECT CASE COUNT(*) WHEN 0 THEN 1 ELSE MAX(ADMIN_IDX) + 1 END FROM KSF_ADMIN
+    </selectKey>
+    INSERT INTO KSF_ADMIN (
+            ADMIN_IDX,
+            ADMIN_ID,
+            ADMIN_PWD,
+            ADMIN_NAME,
+            ADMIN_EMAIL,
+            ADMIN_PHONE,
+            ADMIN_USE_YN,
+            ADMIN_DEL_YN,
+            ADMIN_CREATED_BY,
+            ADMIN_CREATED_DATE,
+            ADMIN_IP
+    ) VALUES (
+            #{idx},
+            #{id},
+            #{pwd},
+            #{name},
+            #{email},
+            #{phone},
+            #{useYn},
+            'N',
+            #{current.loginId},
+            #{current.dt},
+            #{current.ip}
+    )
+  </insert>
+
+  <select id="selectAdminCount" resultType="int">
+    SELECT COUNT(*) CNT FROM KSF_ADMIN
+    <include refid="adminCondition" />
+  </select>
+
+  <select id="selectAdminList" resultMap="simpleAdminResult" >
+    SELECT ADMIN_IDX,
+           ADMIN_ID,
+           ADMIN_NAME,
+           ADMIN_EMAIL,
+           ADMIN_PHONE,
+           ADMIN_USE_YN,
+           ADMIN_DEL_YN,
+           ADMIN_CREATED_BY,
+           ADMIN_CREATED_DATE
+      FROM KSF_ADMIN
+    <include refid="adminCondition" />
+    <include refid="Common.sort"/>
+    <include refid="Common.pagingFooter-mysql"/>
+  </select>
+
+  <select id="selectAdmin" resultMap="simpleAdminResult" >
+    SELECT ADMIN_IDX,
+           ADMIN_ID,
+           ADMIN_NAME,
+           ADMIN_EMAIL,
+           ADMIN_PHONE,
+           ADMIN_USE_YN,
+           ADMIN_DEL_YN,
+           ADMIN_CREATED_BY,
+           ADMIN_CREATED_DATE
+      FROM KSF_ADMIN
+     WHERE ADMIN_IDX = #{idx}
+  </select>
+
+  <select id="selectAdminIdCount" resultType="int">
+    SELECT COUNT(*) FROM KSF_ADMIN WHERE ADMIN_ID = #{id}
+  </select>
+
+  <select id="selectAdminId" resultMap="simpleAdminResult" >
+    SELECT ADMIN_IDX,
+           ADMIN_ID,
+           ADMIN_PWD,
+           ADMIN_NAME,
+           ADMIN_EMAIL,
+           ADMIN_PHONE,
+           ADMIN_USE_YN,
+           ADMIN_DEL_YN,
+           ADMIN_CREATED_BY,
+           ADMIN_CREATED_DATE
+      FROM KSF_ADMIN
+     WHERE ADMIN_ID = #{id}
+  </select>
+
+  <update id="updateAdmin">
+    UPDATE KSF_ADMIN
+       SET ADMIN_NAME = #{name},
+           <if test="pwd != null and pwd != ''">
+            ADMIN_PWD = #{pwd},
+           </if>
+           ADMIN_EMAIL = #{email},
+           ADMIN_PHONE = #{phone},
+           ADMIN_USE_YN = #{useYn},
+           ADMIN_MODIFIED_BY = #{current.loginId},
+           ADMIN_MODIFIED_DATE = #{current.dt},
+           ADMIN_IP = #{current.ip}
+     WHERE ADMIN_IDX = #{idx}
+  </update>
+
+  <update id="deleteAdmin">
+    UPDATE KSF_ADMIN
+       SET ADMIN_DEL_YN = 'Y',
+           ADMIN_MODIFIED_BY = #{current.loginId},
+           ADMIN_MODIFIED_DATE = #{current.dt},
+           ADMIN_IP = #{current.ip}
+     WHERE ADMIN_ID = #{id}
+  </update>
+
+  <insert id="insertAdminLog">
+    <selectKey keyProperty="idx" order="BEFORE" resultType="long">
+      SELECT CASE COUNT(*) WHEN 0 THEN 1 ELSE MAX(ADMIN_LOG_IDX) + 1 END FROM KSF_ADMIN_LOG
+    </selectKey>
+    INSERT INTO KSF_ADMIN_LOG (
+           ADMIN_LOG_IDX,
+           ADMIN_ID,
+           ADMIN_LOG_CREATED_DATE,
+           ADMIN_LOG_IP
+    ) VALUES (
+           #{idx},
+           #{id},
+           #{current.dt},
+           #{current.ip}
+    )
+  </insert>
+</mapper>

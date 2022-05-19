@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.demo.attach.repository.AttachRepository">
+  <resultMap id="simpleAttachResult" type="attach">
+    <id		property="idx"              column="ATTACH_IDX" />
+    <result property="refType"        column="ATTACH_REF_TYPE" />
+    <result property="refKey"         column="ATTACH_REF_KEY" />
+    <result property="refMapCode"     column="ATTACH_REF_MAP_CODE" />
+    <result property="order"          column="ATTACH_ORDER" />
+    <result property="displayName"    column="ATTACH_DISPLAY_NAME" />
+    <result property="savedName"      column="ATTACH_SAVED_NAME" />
+    <result property="savedDir"       column="ATTACH_SAVED_DIR" />
+    <result property="fileType"       column="ATTACH_FILE_TYPE" />
+    <result property="fileSize"       column="ATTACH_FILE_SIZE" />
+    <result property="altValue"       column="ATTACH_ALT_VALUE" />
+    <result property="createdBy"      column="ATTACH_CREATED_BY" />
+    <result property="createdDt"      column="ATTACH_CREATED_DATE" />
+  </resultMap>
+
+  <sql id="attachColumn">
+    ATH.ATTACH_IDX,
+    ATH.ATTACH_REF_TYPE,
+    ATH.ATTACH_REF_KEY,
+    ATH.ATTACH_REF_MAP_CODE,
+    ATH.ATTACH_ORDER,
+    ATH.ATTACH_DISPLAY_NAME,
+    ATH.ATTACH_SAVED_NAME,
+    ATH.ATTACH_SAVED_DIR,
+    ATH.ATTACH_FILE_TYPE,
+    ATH.ATTACH_FILE_SIZE,
+    ATH.ATTACH_ALT_VALUE,
+    ATH.ATTACH_CREATED_BY,
+    ATH.ATTACH_CREATED_DATE
+  </sql>
+
+  <sql id="attachCondition">
+    <if test="refType != null">
+      AND ATTACH_REF_TYPE = #{refType}
+    </if>
+    <if test="refKey != null">
+      AND ATTACH_REF_KEY = #{refKey}
+    </if>
+    <if test="refMapCode != null">
+      AND ATTACH_REF_MAP_CODE = #{refMapCode}
+    </if>
+    <if test="idx != null">
+      AND ATTACH_IDX = #{idx}
+    </if>
+  </sql>
+
+  <!--
+     첨부파일 : 카운트 조회
+  -->
+  <select id="listAttachCnt" resultType="int">
+    /* kr.co.demo.attach.repository.AttachRepository.listAttachCnt */
+    SELECT  COUNT(*) CNT
+      FROM  KSF_ATTACH ATH
+    <where>
+      <include refid="attachCondition"></include>
+    </where>
+  </select>
+
+  <!--
+      첨부파일 : 조회 (목록)
+  -->
+  <select id="listAttach" resultMap="simpleAttachResult">
+    /* kr.co.demo.attach.repository.AttachRepository.listAttach */
+    SELECT  <include refid="attachColumn"></include>
+      FROM  KSF_ATTACH ATH
+    <where>
+      <include refid="attachCondition"></include>
+    </where>
+    ORDER BY  ATH.ATTACH_ORDER ASC
+  </select>
+
+  <!--
+      첨부파일 : 조회 (단일건)
+  -->
+  <select id="getAttach" resultMap="simpleAttachResult">
+    /* kr.co.demo.attach.repository.AttachRepository.getAttach */
+    SELECT  <include refid="attachColumn"></include>
+      FROM  KSF_ATTACH ATH
+    <where>
+       AND  ATH.ATTACH_IDX = #{idx}
+      <include refid="attachCondition"></include>
+    </where>
+  </select>
+
+  <!--
+      첨부파일 : 등록
+  -->
+  <insert id="insertAttach" useGeneratedKeys="true" keyProperty="idx">
+    /* kr.co.demo.attach.repository.AttachRepository.insertAttach */
+    INSERT INTO KSF_ATTACH (
+        ATTACH_IDX,
+        ATTACH_REF_TYPE,
+        ATTACH_REF_KEY,
+        ATTACH_REF_MAP_CODE,
+        ATTACH_ORDER,
+        ATTACH_DISPLAY_NAME,
+        ATTACH_SAVED_NAME,
+        ATTACH_SAVED_DIR,
+        ATTACH_FILE_TYPE,
+        ATTACH_FILE_SIZE,
+        ATTACH_ALT_VALUE,
+        ATTACH_CREATED_BY,
+        ATTACH_CREATED_DATE,
+        ATTACH_IP
+    ) VALUES (
+        #{idx}, #{refType}, #{refKey}, #{refMapCode}, #{order}, #{displayName},
+        #{savedName}, #{savedDir}, #{fileType}, #{fileSize}, #{altValue}, #{current.loginId}, #{current.dt}, #{current.ip}
+    )
+  </insert>
+
+  <!--
+      첨부파일 : 수정
+  -->
+  <update id="updateAttach">
+    /* kr.co.demo.attach.repository.AttachRepository.updateAttach */
+    UPDATE  KSF_ATTACH
+       SET  ATTACH_ORDER = #{order},
+            ATTACH_ALT_VALUE = #{altValue}
+     WHERE  ATTACH_IDX = #{idx}
+  </update>
+
+  <!--
+      첨부파일 : 삭제
+  -->
+  <delete id="deleteAttach">
+    /* kr.co.demo.attach.repository.AttachRepository.deleteAttach */
+    DELETE FROM KSF_ATTACH WHERE	ATTACH_IDX = #{idx}
+  </delete>
+</mapper>

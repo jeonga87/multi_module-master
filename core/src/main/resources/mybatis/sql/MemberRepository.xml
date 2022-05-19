@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.demo.member.repository.MemberRepository">
+
+  <resultMap id="simpleMemberResult" type="kr.co.demo.member.domain.Member" >
+    <id     property="idx"          column="MEMBER_IDX" />
+    <result property="id"           column="MEMBER_ID" />
+    <result property="pwd"          column="MEMBER_PWD" />
+    <result property="name"         column="MEMBER_NAME" />
+    <result property="year"         column="MEMBER_YEAR" />
+    <result property="phone"        column="MEMBER_PHONE" />
+    <result property="tel"          column="MEMBER_TEL" />
+    <result property="email"        column="MEMBER_EMAIL" />
+    <result property="emailYn"      column="MEMBER_EMAIL_YN" />
+    <result property="ci"           column="MEMBER_CI" />
+    <result property="di"           column="MEMBER_DI" />
+    <result property="joinCourse"   column="MEMBER_JOIN_COURSE" />
+    <result property="dormancyYn"   column="MEMBER_DORMANCY_YN" />
+    <result property="dormancyDt"   column="MEMBER_DORMANCY_DATE" />
+    <result property="delYn"        column="MEMBER_DEL_YN" />
+    <result property="delDt"        column="MEMBER_DEL_DATE" />
+    <result property="lastLoginDt"  column="MEMBER_LAST_LOGIN_DATE" />
+    <result property="createdBy"    column="MEMBER_CREATED_BY" />
+    <result property="createdDt"    column="MEMBER_CREATED_DATE" />
+    <result property="modifiedBy"   column="MEMBER_MODIFIED_BY" />
+    <result property="modifiedDt"   column="MEMBER_MODIFIED_DATE" />
+  </resultMap>
+
+  <sql id="memberCondition">
+    <where>
+      MEMBER_DEL_YN = 'N'
+      <if test="searchInfo != null">
+        <foreach collection="searchInfo.entrySet()" index="key" item="entry">
+          <if test="entry != null and entry != ''">
+            <choose>
+              <when test="key == 'search'">
+                <choose>
+                  <when test="entry == 'all'">
+                    AND
+                    (
+                        MEMBER_ID LIKE CONCAT('%',#{searchValue},'%')
+                      OR
+                        MEMBER_NAME LIKE CONCAT('%',#{searchValue},'%')
+                    )
+                  </when>
+                  <when test="entry == 'id'">
+                    AND MEMBER_ID LIKE CONCAT('%',#{searchValue},'%')
+                  </when>
+                  <when test="entry == 'name'">
+                    AND MEMBER_NAME LIKE CONCAT('%',#{searchValue},'%')
+                  </when>
+                </choose>
+              </when>
+              <when test="key == 'pwd'">
+                AND MEMBER_PWD = #{entry}
+              </when>
+            </choose>
+          </if>
+        </foreach>
+      </if>
+      <if test="id != '' and id != null">
+        AND  MEMBER_ID LIKE CONCAT('%',#{searchValue},'%')
+      </if>
+      <if test="dormancyYn != '' and dormancyYn != null">
+        AND  MEMBER_DORMANCY_YN = #{dormancyYn}
+      </if>
+    </where>
+  </sql>
+
+  <insert id="insertMember" parameterType="Member" useGeneratedKeys="true" keyProperty="idx">
+    /* MemberRepository.insertMember */
+    INSERT INTO KSF_MEMBER (
+            MEMBER_ID,
+            MEMBER_PWD,
+            MEMBER_NAME,
+            MEMBER_YEAR,
+            MEMBER_PHONE,
+            MEMBER_TEL,
+            MEMBER_EMAIL,
+            MEMBER_EMAIL_YN,
+            MEMBER_CI,
+            MEMBER_DI,
+            MEMBER_JOIN_COURSE,
+            MEMBER_DORMANCY_YN,
+            MEMBER_DEL_YN,
+            MEMBER_CREATED_BY,
+            MEMBER_CREATED_DATE,
+            MEMBER_IP
+    ) VALUES (
+            #{id},
+            #{pwd},
+            #{name},
+            #{year},
+            #{phone},
+            #{tel},
+            #{email},
+            #{emailYn},
+            #{ci},
+            #{di},
+            #{joinCourse},
+            'N',
+            'N',
+            #{current.loginId},
+            #{current.dt},
+            #{current.ip}
+    )
+  </insert>
+
+  <select id="selectMemberCount" resultType="int">
+    /* MemberRepository.selectMemberCount */
+    SELECT   COUNT(*) CNT
+      FROM   KSF_MEMBER m
+    <include refid="memberCondition" />
+  </select>
+
+  <select id="selectMemberList" resultMap="simpleMemberResult">
+    /* MemberRepository.selectMemberList */
+    SELECT MEMBER_IDX,
+           MEMBER_ID,
+           MEMBER_PWD,
+           MEMBER_NAME,
+           MEMBER_YEAR,
+           MEMBER_PHONE,
+           MEMBER_TEL,
+           MEMBER_EMAIL,
+           MEMBER_CI,
+           MEMBER_DI,
+           MEMBER_JOIN_COURSE,
+           MEMBER_DORMANCY_YN,
+           MEMBER_DORMANCY_DATE,
+           MEMBER_DEL_YN,
+           MEMBER_DEL_DATE,
+           MEMBER_LAST_LOGIN_DATE,
+           MEMBER_CREATED_BY,
+           MEMBER_CREATED_DATE
+      FROM KSF_MEMBER
+        <include refid="memberCondition" />
+      GROUP BY MEMBER_IDX
+      <include refid="Common.sort"/>
+      <include refid="Common.pagingFooter-mysql"/>
+  </select>
+
+  <select id="selectMember" resultMap="simpleMemberResult" >
+    /* MemberRepository.selectMember */
+    SELECT m.MEMBER_IDX,
+           m.MEMBER_ID,
+           m.MEMBER_PWD,
+           m.MEMBER_NAME,
+           m.MEMBER_YEAR,
+           m.MEMBER_PHONE,
+           m.MEMBER_TEL,
+           m.MEMBER_EMAIL,
+           m.MEMBER_EMAIL_YN,
+           m.MEMBER_CI,
+           m.MEMBER_DI,
+           m.MEMBER_JOIN_COURSE,
+           m.MEMBER_DORMANCY_YN,
+           m.MEMBER_DORMANCY_DATE,
+           m.MEMBER_DEL_YN,
+           m.MEMBER_DEL_DATE,
+           m.MEMBER_LAST_LOGIN_DATE,
+           m.MEMBER_CREATED_BY,
+           m.MEMBER_CREATED_DATE
+      FROM KSF_MEMBER m
+     WHERE m.MEMBER_IDX = #{idx}
+  </select>
+
+  <select id="selectMemberIdCount" resultType="int">
+    /* MemberRepository.selectMemberIdCount */
+    SELECT   COUNT(*)
+      FROM   KSF_MEMBER
+     WHERE   MEMBER_ID = #{id}
+       AND   MEMBER_DEL_YN = 'N'
+  </select>
+
+  <select id="selectMemberId" resultMap="simpleMemberResult" >
+    /* MemberRepository.selectMemberId */
+    SELECT m.MEMBER_IDX,
+           m.MEMBER_ID,
+           m.MEMBER_PWD,
+           m.MEMBER_NAME,
+           m.MEMBER_YEAR,
+           m.MEMBER_PHONE,
+           m.MEMBER_TEL,
+           m.MEMBER_EMAIL,
+           m.MEMBER_EMAIL_YN,
+           m.MEMBER_CI,
+           m.MEMBER_DI,
+           m.MEMBER_JOIN_COURSE,
+           m.MEMBER_DORMANCY_YN,
+           m.MEMBER_DORMANCY_DATE,
+           m.MEMBER_DEL_YN,
+           m.MEMBER_DEL_DATE,
+           m.MEMBER_LAST_LOGIN_DATE,
+           m.MEMBER_CREATED_BY,
+           m.MEMBER_CREATED_DATE
+      FROM KSF_MEMBER m
+     WHERE m.MEMBER_ID = #{id}
+       AND m.MEMBER_DEL_YN = 'N'
+  </select>
+
+  <select id="selectMemberAuthInfo" resultMap="simpleMemberResult">
+    /* MemberRepository.selectMemberAuthInfo */
+    SELECT MEMBER_ID, MEMBER_CREATED_DATE
+      FROM KSF_MEMBER
+     WHERE MEMBER_DEL_YN = 'N'
+    <choose>
+      <when test="name != null and phone != null">
+        AND (MEMBER_PWD IS NULL OR MEMBER_PWD = '')
+        AND MEMBER_NAME = #{name}
+        AND MEMBER_PHONE = #{phone}
+      </when>
+      <when test="phone != null">
+        AND MEMBER_PHONE = #{phone}
+      </when>
+      <otherwise>
+        AND MEMBER_CI = #{ci}
+        AND MEMBER_DI = #{di}
+      </otherwise>
+    </choose>
+    LIMIT 1
+  </select>
+
+  <select id="selectMemberForFindId" resultMap="simpleMemberResult">
+    /* MemberRepository.selectMemberForFindId */
+    SELECT MEMBER_IDX, MEMBER_ID
+      FROM KSF_MEMBER
+     WHERE MEMBER_NAME = #{name}
+       AND MEMBER_EMAIL = #{email}
+       AND MEMBER_DEL_YN = 'N'
+     ORDER BY MEMBER_CREATED_DATE DESC
+  </select>
+
+  <update id="updateMember">
+    /* MemberRepository.updateMember */
+    UPDATE KSF_MEMBER
+       SET MEMBER_MODIFIED_BY = #{current.loginId},
+           MEMBER_MODIFIED_DATE = #{current.dt},
+           <if test="name != null and name != ''">
+             MEMBER_NAME = #{name},
+           </if>
+           <if test="year != null and year != ''">
+             MEMBER_YEAR = #{year},
+           </if>
+           <if test="phone != null and phone != ''">
+             MEMBER_PHONE = #{phone},
+           </if>
+           <if test="pwd != null and pwd != ''">
+             MEMBER_PWD = #{pwd},
+           </if>
+           <if test="tel != null and tel != ''">
+             MEMBER_TEL = #{tel},
+           </if>
+           <if test="email != null and email != ''">
+             MEMBER_EMAIL = #{email},
+           </if>
+           <if test="emailYn != null and emailYn != ''">
+             MEMBER_EMAIL_YN = #{emailYn},
+           </if>
+           MEMBER_IP = #{current.ip}
+     WHERE MEMBER_IDX = #{idx}
+  </update>
+
+  <update id="updateLoginDateMember">
+    /* MemberRepository.updateLoginDateMember */
+    UPDATE KSF_MEMBER
+       SET MEMBER_LAST_LOGIN_DATE = #{current.dt}
+     WHERE MEMBER_IDX = #{idx}
+  </update>
+
+  <update id="updatePwdMember">
+    /* MemberRepository.updatePwdMember */
+    UPDATE KSF_MEMBER
+       SET MEMBER_PWD = #{pwd},
+           MEMBER_MODIFIED_BY = #{current.loginId},
+           MEMBER_MODIFIED_DATE = #{current.dt},
+           MEMBER_IP = #{current.ip}
+     WHERE MEMBER_IDX = #{idx}
+  </update>
+
+  <update id="updateDeleteMember">
+    /* MemberRepository.updateDeleteMember */
+    UPDATE KSF_MEMBER
+       SET MEMBER_DEL_YN = 'Y',
+           MEMBER_DEL_DATE = #{current.dt},
+           MEMBER_MODIFIED_BY = #{current.loginId},
+           MEMBER_MODIFIED_DATE = #{current.dt},
+           MEMBER_IP = #{current.ip}
+     WHERE MEMBER_IDX = #{idx}
+  </update>
+
+  <delete id="deleteMember">
+    /* MemberRepository.deleteMember */
+    DELETE FROM KSF_MEMBER
+     WHERE MEMBER_IDX = #{idx}
+  </delete>
+
+  <insert id="insertMemberLog">
+    /* MemberRepository.insertMemberLog */
+    INSERT INTO KSF_MEMBER_LOG (
+                MEMBER_LOG_IDX,
+                MEMBER_ID,
+                MEMBER_LOG_CREATED_DATE,
+                MEMBER_LOG_IP
+    )
+                SELECT CASE COUNT(*) WHEN 0 THEN 1 ELSE MAX(MEMBER_LOG_IDX) + 1 END,
+                #{id},
+                #{current.dt},
+                #{current.ip}
+      FROM KSF_MEMBER_LOG
+  </insert>
+</mapper>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion><packaging>pom</packaging><modules><module>admin</module><module>pc-web</module><module>mobile-web</module><module>core</module></modules>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.2.5.RELEASE</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+
+  <groupId>kr.co.demo</groupId>
+  <artifactId>demo</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>demo</name>
+  <description>Demo project for Spring Boot</description>
+
+  <prerequisites>
+    <maven>3.2.0</maven>
+  </prerequisites>
+
+  <properties>
+    <commons-lang3.version>3.9</commons-lang3.version>
+    <java.version>1.8</java.version>
+    <javax.inject.version>1</javax.inject.version>
+    <jsp.version>2.2</jsp.version>
+    <logback.version>1.2.3</logback.version>
+    <lombok.version>1.18.12</lombok.version>
+    <servlet.version>4.0.1</servlet.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+
+    <mysql.version>8.0.19</mysql.version>
+    <hikaricp.version>3.4.2</hikaricp.version>
+    <sitemesh.version>3.0.1</sitemesh.version>
+    <spring.boot.version>2.2.5.RELEASE</spring.boot.version>
+    <spring-security.version>5.2.2.RELEASE</spring-security.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.inject</groupId>
+        <artifactId>javax.inject</artifactId>
+        <version>${javax.inject.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>${servlet.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.servlet.jsp</groupId>
+        <artifactId>jsp-api</artifactId>
+        <version>${jsp.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.sitemesh</groupId>
+        <artifactId>sitemesh</artifactId>
+        <version>${sitemesh.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>${mysql.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.zaxxer</groupId>
+        <artifactId>HikariCP</artifactId>
+        <version>${hikaricp.version}</version>
+        <exclusions>
+            <exclusion>
+                <artifactId>tools</artifactId>
+                <groupId>com.sun</groupId>
+            </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>2.2.5.RELEASE</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <profiles>
+    <profile>
+      <id>local</id>
+      <activation>
+          <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+          <logback.loglevel>DEBUG</logback.loglevel>
+      </properties>
+    </profile>
+    <profile>
+      <id>dev</id>
+      <properties>
+          <logback.loglevel>DEBUG</logback.loglevel>
+      </properties>
+    </profile>
+    <profile>
+      <id>prod</id>
+      <properties>
+          <logback.loglevel>INFO</logback.loglevel>
+      </properties>
+    </profile>
+  </profiles>
+
+</project>

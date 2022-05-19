@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.demo.example.repository.ExampleRepository">
+
+  <resultMap id="simpleExampleResult" type="kr.co.demo.example.domain.Example" >
+    <id   property="idx"            column="EXAMPLE_BOARD_IDX" />
+    <result property="title"        column="EXAMPLE_BOARD_TITLE" />
+    <result property="content"      column="EXAMPLE_BOARD_CONTENT" />
+    <result property="useYn"        column="EXAMPLE_BOARD_USE_YN" />
+    <result property="delYn"        column="EXAMPLE_BOARD_DEL_YN" />
+    <result property="createdBy"    column="EXAMPLE_BOARD_CREATED_BY" />
+    <result property="createdDt"    column="EXAMPLE_BOARD_CREATED_DATE" />
+    <result property="modifiedBy"   column="EXAMPLE_BOARD_MODIFIED_BY" />
+    <result property="modifiedDt"   column="EXAMPLE_BOARD_MODIFIED_DATE" />
+    <result property="attachIdx"    column="ATTACH_IDX" />
+    <result property="attachName"   column="ATTACH_DISPLAY_NAME" />
+  </resultMap>
+
+  <sql id="exampleCondition">
+    <where>
+      EXAMPLE_BOARD_DEL_YN = 'N'
+      <if test="useYn != null and useYn != ''">
+        AND EXAMPLE_BOARD_USE_YN = #{useYn}
+      </if>
+      <if test="searchInfo != null">
+        <foreach collection="searchInfo.entrySet()" index="key" item="entry">
+          <if test="entry != null and entry != ''">
+            <choose>
+              <when test="key == 'search'">
+                <choose>
+                  <when test="entry == 'title'">
+                    AND EXAMPLE_BOARD_TITLE LIKE CONCAT('%',#{searchValue},'%')
+                  </when>
+                  <when test="entry == 'content'">
+                    AND EXAMPLE_BOARD_CONTENT LIKE CONCAT('%',#{searchValue},'%')
+                  </when>
+                </choose>
+              </when>
+            </choose>
+          </if>
+        </foreach>
+      </if>
+    </where>
+  </sql>
+
+  <select id="selectExampleCount" resultType="int">
+    /* ExampleRepository.selectExampleCount */
+    SELECT COUNT(*) CNT FROM KSF_EXAMPLE
+    <include refid="exampleCondition" />
+  </select>
+
+  <select id="selectExampleList" resultMap="simpleExampleResult" >
+    /* ExampleRepository.selectExampleList */
+    SELECT b.EXAMPLE_BOARD_IDX,
+           b.EXAMPLE_BOARD_TITLE,
+           b.EXAMPLE_BOARD_CONTENT,
+           b.EXAMPLE_BOARD_USE_YN,
+           b.EXAMPLE_BOARD_CREATED_BY,
+           b.EXAMPLE_BOARD_CREATED_DATE,
+           a.ATTACH_IDX
+      FROM KSF_EXAMPLE b
+      LEFT JOIN ( SELECT ATTACH_REF_KEY, MAX(ATTACH_IDX) AS ATTACH_IDX FROM KSF_ATTACH a WHERE a.ATTACH_REF_TYPE = 'example' AND a.ATTACH_REF_MAP_CODE = 'attach' GROUP BY ATTACH_REF_KEY ) a
+        ON b.EXAMPLE_BOARD_IDX = a.ATTACH_REF_KEY
+    <include refid="exampleCondition" />
+    <include refid="Common.sort"/>
+    <include refid="Common.pagingFooter-mysql"/>
+  </select>
+
+  <select id="selectExample" resultMap="simpleExampleResult" >
+    /* ExampleRepository.selectExample */
+    SELECT EXAMPLE_BOARD_IDX,
+           EXAMPLE_BOARD_TITLE,
+           EXAMPLE_BOARD_CONTENT,
+           EXAMPLE_BOARD_USE_YN,
+           EXAMPLE_BOARD_CREATED_BY,
+           EXAMPLE_BOARD_CREATED_DATE
+      FROM KSF_EXAMPLE b
+     WHERE EXAMPLE_BOARD_IDX = #{idx}
+  </select>
+
+  <insert id="insertExample">
+    /* ExampleRepository.insertExample */
+    INSERT INTO KSF_EXAMPLE (
+           EXAMPLE_BOARD_TITLE,
+           EXAMPLE_BOARD_CONTENT,
+           EXAMPLE_BOARD_USE_YN,
+           EXAMPLE_BOARD_DEL_YN,
+           EXAMPLE_BOARD_CREATED_BY,
+           EXAMPLE_BOARD_CREATED_DATE,
+           EXAMPLE_BOARD_IP
+    ) VALUES (
+           #{title},
+           #{content},
+           #{useYn},
+           'N',
+           #{current.loginId},
+           #{current.dt},
+           #{current.ip}
+    )
+  </insert>
+
+  <update id="updateExample">
+    /* ExampleRepository.updateExample */
+    UPDATE KSF_EXAMPLE
+       SET EXAMPLE_BOARD_TITLE = #{title},
+           EXAMPLE_BOARD_CONTENT = #{content},
+           EXAMPLE_BOARD_USE_YN = #{useYn},
+           EXAMPLE_BOARD_MODIFIED_BY = #{current.loginId},
+           EXAMPLE_BOARD_MODIFIED_DATE = #{current.dt},
+           EXAMPLE_BOARD_IP = #{current.ip}
+     WHERE EXAMPLE_BOARD_IDX = #{idx}
+  </update>
+
+  <update id="deleteExample">
+    /* ExampleRepository.deleteExample */
+    UPDATE KSF_EXAMPLE
+       SET EXAMPLE_BOARD_DEL_YN = 'Y',
+           EXAMPLE_BOARD_MODIFIED_BY = #{current.loginId},
+           EXAMPLE_BOARD_MODIFIED_DATE = #{current.dt},
+           EXAMPLE_BOARD_IP = #{current.ip}
+    WHERE EXAMPLE_BOARD_IDX = #{idx}
+  </update>
+</mapper>
